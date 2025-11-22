@@ -4,9 +4,25 @@ import { useState } from "react";
 import ResultCard from "../components/ResultCard";
 import { FaPlus, FaTable, FaCode, FaCopy } from "react-icons/fa";
 
+// ✅ Interface des données
+interface OilData {
+  sterols: number;
+  triglycerides: number;
+  phenols: number;
+  acidite: number;
+  alcools_triterpeniques: number;
+  derives_tocopherol: number;
+  acides_gras: number;
+  densite_huile: number;
+  ph: number;
+  vitamine_e: number;
+  polyphenols: number;
+}
+
 export default function Home() {
   const [mode, setMode] = useState<"table" | "json">("table");
-  const [rows, setRows] = useState([
+
+  const [rows, setRows] = useState<OilData[]>([
     {
       sterols: 0,
       triglycerides: 0,
@@ -21,11 +37,13 @@ export default function Home() {
       polyphenols: 0
     }
   ]);
+
   const [jsonInput, setJsonInput] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  const exampleJSON = [
+  // ---------------------- EXAMPLE JSON ----------------------
+  const exampleJSON: OilData[] = [
     {
       sterols: 7.2,
       triglycerides: 0.24,
@@ -64,35 +82,10 @@ export default function Home() {
       ph: 3.2,
       vitamine_e: 0.40,
       polyphenols: 7.0
-    },
-    {
-      sterols: 6.7,
-      triglycerides: 0.20,
-      phenols: 0.24,
-      acidite: 6.5,
-      alcools_triterpeniques: 0.044,
-      derives_tocopherol: 42.0,
-      acides_gras: 168.0,
-      densite_huile: 1001.5,
-      ph: 3.0,
-      vitamine_e: 0.44,
-      polyphenols: 8.5
-    },
-    {
-      sterols: 9.9,
-      triglycerides: 0.53,
-      phenols: 0.57,
-      acidite: 2.4,
-      alcools_triterpeniques: 0.093,
-      derives_tocopherol: 50.0,
-      acides_gras: 175.0,
-      densite_huile: 1000.8,
-      ph: 3.1,
-      vitamine_e: 0.50,
-      polyphenols: 9.0
     }
   ];
 
+  // ---------------------- ADD ROW ----------------------
   const addRow = () => {
     setRows([
       ...rows,
@@ -112,17 +105,25 @@ export default function Home() {
     ]);
   };
 
-  const handleChange = (index: number, field: string, value: string) => {
+  // ---------------------- HANDLE CHANGE (CORRIGÉ) ----------------------
+  const handleChange = (
+    index: number,
+    field: keyof OilData,
+    value: string
+  ) => {
     const newRows = [...rows];
-    newRows[index][field as keyof typeof newRows[0]] = parseFloat(value); // ✅ correction TypeScript
+    const parsed = value === "" ? 0 : parseFloat(value);
+    newRows[index][field] = parsed;
     setRows(newRows);
   };
 
+  // ---------------------- CALL API ----------------------
   const handlePredict = async () => {
     setLoading(true);
     setResult(null);
 
     let payload;
+
     if (mode === "table") payload = rows;
     else {
       try {
@@ -141,7 +142,9 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
+
       if (!res.ok) throw new Error("Erreur API");
+
       const data = await res.json();
       setResult(data);
     } catch {
@@ -151,11 +154,13 @@ export default function Home() {
     setLoading(false);
   };
 
+  // ---------------------- COPY EXAMPLE ----------------------
   const copyExample = () => {
     navigator.clipboard.writeText(JSON.stringify(exampleJSON, null, 2));
     alert("JSON copié !");
   };
 
+  // ---------------------- UI ----------------------
   return (
     <div style={{ padding: 40, fontFamily: "Arial, sans-serif" }}>
       <header style={{ display: "flex", alignItems: "center", gap: 20 }}>
@@ -169,39 +174,65 @@ export default function Home() {
         <button
           onClick={() => setMode("table")}
           disabled={mode === "table"}
-          style={{ display: "flex", alignItems: "center", gap: 5, backgroundColor: "#4CAF50", color: "white", padding: "8px 15px", borderRadius: 6 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            backgroundColor: "#4CAF50",
+            color: "white",
+            padding: "8px 15px",
+            borderRadius: 6
+          }}
         >
           <FaTable /> Mode Tableau
         </button>
+
         <button
           onClick={() => setMode("json")}
           disabled={mode === "json"}
-          style={{ display: "flex", alignItems: "center", gap: 5, backgroundColor: "#1976D2", color: "white", padding: "8px 15px", borderRadius: 6 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 5,
+            backgroundColor: "#1976D2",
+            color: "white",
+            padding: "8px 15px",
+            borderRadius: 6
+          }}
         >
           <FaCode /> Mode JSON
         </button>
       </div>
 
+      {/* ---------------------- TABLE MODE ---------------------- */}
       {mode === "table" ? (
         <div style={{ marginTop: 20, display: "flex", flexDirection: "column", gap: 15 }}>
           {rows.map((row, i) => (
-            <div key={i} style={{
-              backgroundColor: "#f0f8ff",
-              padding: 15,
-              borderRadius: 12,
-              boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-              gap: 10
-            }}>
+            <div
+              key={i}
+              style={{
+                backgroundColor: "#f0f8ff",
+                padding: 15,
+                borderRadius: 12,
+                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+                gap: 10
+              }}
+            >
               {Object.entries(row).map(([field, value]) => (
                 <div key={field} style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                   <label style={{ fontWeight: "bold", fontSize: 12, marginBottom: 4 }}>{field}</label>
                   <input
                     type="number"
                     value={value}
-                    onChange={(e) => handleChange(i, field, e.target.value)}
-                    style={{ width: "90%", padding: 5, borderRadius: 5, border: "1px solid #ccc" }}
+                    onChange={(e) => handleChange(i, field as keyof OilData, e.target.value)}
+                    style={{
+                      width: "90%",
+                      padding: 5,
+                      borderRadius: 5,
+                      border: "1px solid #ccc"
+                    }}
                   />
                 </div>
               ))}
@@ -209,21 +240,49 @@ export default function Home() {
           ))}
         </div>
       ) : (
+        // ---------------------- JSON MODE ----------------------
         <div style={{ marginTop: 20, display: "flex", gap: 20 }}>
           <textarea
             value={jsonInput}
             onChange={(e) => setJsonInput(e.target.value)}
             rows={15}
-            placeholder='Entrez votre JSON ici'
-            style={{ width: "50%", padding: 10, borderRadius: 6, border: "1px solid #ccc", fontFamily: "monospace" }}
+            placeholder="Entrez votre JSON ici"
+            style={{
+              width: "50%",
+              padding: 10,
+              borderRadius: 6,
+              border: "1px solid #ccc",
+              fontFamily: "monospace"
+            }}
           />
-          <div style={{ width: "50%", backgroundColor: "#f5f5f5", padding: 15, borderRadius: 8, overflowY: "auto" }}>
+
+          <div
+            style={{
+              width: "50%",
+              backgroundColor: "#f5f5f5",
+              padding: 15,
+              borderRadius: 8,
+              overflowY: "auto"
+            }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <strong>Exemple JSON :</strong>
-              <button onClick={copyExample} style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", backgroundColor: "#1976D2", color: "white", borderRadius: 5 }}>
+              <button
+                onClick={copyExample}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  padding: "5px 10px",
+                  backgroundColor: "#1976D2",
+                  color: "white",
+                  borderRadius: 5
+                }}
+              >
                 <FaCopy /> Copier
               </button>
             </div>
+
             <pre style={{ marginTop: 10, whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
               {JSON.stringify(exampleJSON, null, 2)}
             </pre>
@@ -231,11 +290,33 @@ export default function Home() {
         </div>
       )}
 
+      {/* ---------------------- ACTION BUTTONS ---------------------- */}
       <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
-        <button onClick={addRow} style={{ padding: "10px 15px", backgroundColor: "#FF9800", color: "white", borderRadius: 6, display: "flex", alignItems: "center", gap: 5 }}>
+        <button
+          onClick={addRow}
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#FF9800",
+            color: "white",
+            borderRadius: 6,
+            display: "flex",
+            alignItems: "center",
+            gap: 5
+          }}
+        >
           <FaPlus /> Ajouter une ligne
         </button>
-        <button onClick={handlePredict} style={{ padding: "12px 25px", backgroundColor: "#2E7D32", color: "white", fontWeight: "bold", borderRadius: 6 }}>
+
+        <button
+          onClick={handlePredict}
+          style={{
+            padding: "12px 25px",
+            backgroundColor: "#2E7D32",
+            color: "white",
+            fontWeight: "bold",
+            borderRadius: 6
+          }}
+        >
           Prédire
         </button>
       </div>
