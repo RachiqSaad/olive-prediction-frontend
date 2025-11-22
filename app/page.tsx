@@ -27,75 +27,72 @@ export default function Home() {
 
   const exampleJSON = [
     {
-      "sterols": 7.2,
-      "triglycerides": 0.24,
-      "phenols": 0.30,
-      "acidite": 1.6,
-      "alcools_triterpeniques": 0.048,
-      "derives_tocopherol": 45.0,
-      "acides_gras": 170.0,
-      "densite_huile": 1001.0,
-      "ph": 3.0,
-      "vitamine_e": 0.45,
-      "polyphenols": 8.8
+      sterols: 7.2,
+      triglycerides: 0.24,
+      phenols: 0.30,
+      acidite: 1.6,
+      alcools_triterpeniques: 0.048,
+      derives_tocopherol: 45.0,
+      acides_gras: 170.0,
+      densite_huile: 1001.0,
+      ph: 3.0,
+      vitamine_e: 0.45,
+      polyphenols: 8.8
     },
     {
-      "sterols": 6.8,
-      "triglycerides": 0.23,
-      "phenols": 0.42,
-      "acidite": 7.4,
-      "alcools_triterpeniques": 0.044,
-      "derives_tocopherol": 40.0,
-      "acides_gras": 165.0,
-      "densite_huile": 1002.0,
-      "ph": 3.1,
-      "vitamine_e": 0.42,
-      "polyphenols": 8.0
+      sterols: 6.8,
+      triglycerides: 0.23,
+      phenols: 0.42,
+      acidite: 7.4,
+      alcools_triterpeniques: 0.044,
+      derives_tocopherol: 40.0,
+      acides_gras: 165.0,
+      densite_huile: 1002.0,
+      ph: 3.1,
+      vitamine_e: 0.42,
+      polyphenols: 8.0
     },
     {
-      "sterols": 4.6,
-      "triglycerides": 0.52,
-      "phenols": 0.15,
-      "acidite": 2.1,
-      "alcools_triterpeniques": 0.054,
-      "derives_tocopherol": 35.0,
-      "acides_gras": 180.0,
-      "densite_huile": 1003.0,
-      "ph": 3.2,
-      "vitamine_e": 0.40,
-      "polyphenols": 7.0
+      sterols: 4.6,
+      triglycerides: 0.52,
+      phenols: 0.15,
+      acidite: 2.1,
+      alcools_triterpeniques: 0.054,
+      derives_tocopherol: 35.0,
+      acides_gras: 180.0,
+      densite_huile: 1003.0,
+      ph: 3.2,
+      vitamine_e: 0.40,
+      polyphenols: 7.0
     },
     {
-      "sterols": 6.7,
-      "triglycerides": 0.20,
-      "phenols": 0.24,
-      "acidite": 6.5,
-      "alcools_triterpeniques": 0.044,
-      "derives_tocopherol": 42.0,
-      "acides_gras": 168.0,
-      "densite_huile": 1001.5,
-      "ph": 3.0,
-      "vitamine_e": 0.44,
-      "polyphenols": 8.5
+      sterols: 6.7,
+      triglycerides: 0.20,
+      phenols: 0.24,
+      acidite: 6.5,
+      alcools_triterpeniques: 0.044,
+      derives_tocopherol: 42.0,
+      acides_gras: 168.0,
+      densite_huile: 1001.5,
+      ph: 3.0,
+      vitamine_e: 0.44,
+      polyphenols: 8.5
     },
     {
-      "sterols": 9.9,
-      "triglycerides": 0.53,
-      "phenols": 0.57,
-      "acidite": 2.4,
-      "alcools_triterpeniques": 0.093,
-      "derives_tocopherol": 50.0,
-      "acides_gras": 175.0,
-      "densite_huile": 1000.8,
-      "ph": 3.1,
-      "vitamine_e": 0.50,
-      "polyphenols": 9.0
+      sterols: 9.9,
+      triglycerides: 0.53,
+      phenols: 0.57,
+      acidite: 2.4,
+      alcools_triterpeniques: 0.093,
+      derives_tocopherol: 50.0,
+      acides_gras: 175.0,
+      densite_huile: 1000.8,
+      ph: 3.1,
+      vitamine_e: 0.50,
+      polyphenols: 9.0
     }
-  ]
+  ];
 
-    ;
-
-  // ======= Fonction manquante =======
   const addRow = () => {
     setRows([
       ...rows,
@@ -117,7 +114,7 @@ export default function Home() {
 
   const handleChange = (index: number, field: string, value: string) => {
     const newRows = [...rows];
-    newRows[index][field] = parseFloat(value);
+    newRows[index][field as keyof typeof newRows[0]] = parseFloat(value); // ✅ correction TypeScript
     setRows(newRows);
   };
 
