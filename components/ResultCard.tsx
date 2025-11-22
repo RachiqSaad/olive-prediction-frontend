@@ -1,26 +1,28 @@
 export default function ResultCard({ result }: any) {
-    const getColor = () => {
-        if (result.code === 2) return "#4CAF50"; // Vert
-        if (result.code === 1) return "#FFC107"; // Jaune
-        return "#F44336"; // Rouge
+    const getColor = (code: number) => {
+        if (code === 3) return "#4CAF50"; // Vert = Excellente qualité
+        if (code === 1) return "#FFC107"; // Jaune = Bonne qualité
+        return "#F44336"; // Rouge = Mauvaise qualité
     };
 
     return (
-        <div
-            style={{
-                marginTop: 30,
-                padding: 20,
-                borderRadius: 10,
-                backgroundColor: getColor(),
-                color: "white",
-                width: 300
-            }}
-        >
-            <h2 style={{ margin: 0 }}>Résultat :</h2>
-            <p style={{ fontSize: 20, fontWeight: "bold" }}>
-                {result.qualite_predite}
-            </p>
-            <p>Code modèle : {result.code}</p>
+        <div style={{ marginTop: 20 }}>
+            {result.predictions.map((r: any, i: number) => (
+                <div
+                    key={i}
+                    style={{
+                        marginBottom: 10,
+                        padding: 15,
+                        borderRadius: 8,
+                        backgroundColor: getColor(r.code),
+                        color: "white",
+                        fontWeight: "bold"
+                    }}
+                >
+                    <p>Résultat : {r.qualite_predite}</p>
+                    <p>Code modèle : {r.code}</p>
+                </div>
+            ))}
         </div>
     );
 }
