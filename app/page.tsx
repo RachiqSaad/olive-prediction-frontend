@@ -59,15 +59,16 @@ export default function Home() {
     setRows([...rows, emptyRow]);
   };
 
-  // ✅ correction définitive TypeScript
-  const handleChange = (
-    index: number,
-    field: keyof Row,
-    value: string
-  ) => {
+  // ✅ CORRECTION : TypeScript sait maintenant que 'field' est une clé valide de Row
+  const handleChange = (index: number, field: keyof Row, value: string) => {
     const newRows = [...rows];
-    newRows[index][field] = parseFloat(value);
-    setRows(newRows);
+    const numericValue = parseFloat(value);
+
+    // Vérification pour éviter NaN
+    if (!isNaN(numericValue)) {
+      newRows[index][field] = numericValue;
+      setRows(newRows);
+    }
   };
 
   const handlePredict = async () => {
@@ -116,12 +117,30 @@ export default function Home() {
     alert("JSON copié !");
   };
 
+  // Fonction utilitaire pour formater les labels
+  const formatLabel = (key: string): string => {
+    const labels: Record<string, string> = {
+      sterols: "Stérols",
+      triglycerides: "Triglycérides",
+      phenols: "Phénols",
+      acidite: "Acidité",
+      alcools_triterpeniques: "Alcools Triterpéniques",
+      derives_tocopherol: "Dérivés Tocophérol",
+      acides_gras: "Acides Gras",
+      densite_huile: "Densité Huile",
+      ph: "pH",
+      vitamine_e: "Vitamine E",
+      polyphenols: "Polyphénols"
+    };
+    return labels[key] || key;
+  };
+
   return (
     <div style={{ padding: 40, fontFamily: "Arial, sans-serif" }}>
       <header style={{ display: "flex", alignItems: "center", gap: 20 }}>
         <img src="/image.png" alt="Logo Huile" style={{ width: 80 }} />
         <h1 style={{ fontSize: 32, fontWeight: "bold", color: "#2E7D32" }}>
-          Prédiction de Qualité d’Huile
+          Prédiction de Qualité d'Huile
         </h1>
       </header>
 
@@ -133,10 +152,12 @@ export default function Home() {
             display: "flex",
             alignItems: "center",
             gap: 5,
-            backgroundColor: "#4CAF50",
+            backgroundColor: mode === "table" ? "#4CAF50" : "#ccc",
             color: "white",
             padding: "8px 15px",
             borderRadius: 6,
+            border: "none",
+            cursor: mode === "table" ? "default" : "pointer",
           }}
         >
           <FaTable /> Mode Tableau
@@ -149,10 +170,12 @@ export default function Home() {
             display: "flex",
             alignItems: "center",
             gap: 5,
-            backgroundColor: "#1976D2",
+            backgroundColor: mode === "json" ? "#1976D2" : "#ccc",
             color: "white",
             padding: "8px 15px",
             borderRadius: 6,
+            border: "none",
+            cursor: mode === "json" ? "default" : "pointer",
           }}
         >
           <FaCode /> Mode JSON
@@ -174,17 +197,18 @@ export default function Home() {
                 gap: 10,
               }}
             >
-              {Object.entries(row).map(([field, value]) => (
+              {(Object.keys(emptyRow) as Array<keyof Row>).map((field) => (
                 <div key={field} style={{ display: "flex", flexDirection: "column" }}>
                   <label style={{ fontWeight: "bold", fontSize: 12, marginBottom: 4 }}>
-                    {field}
+                    {formatLabel(field)}
                   </label>
                   <input
                     type="number"
-                    value={value}
+                    value={row[field]}
                     onChange={(e) =>
-                      handleChange(i, field as keyof Row, e.target.value)
+                      handleChange(i, field, e.target.value)
                     }
+                    step="any"
                     style={{
                       width: "90%",
                       padding: 5,
@@ -241,6 +265,8 @@ export default function Home() {
                   backgroundColor: "#1976D2",
                   color: "white",
                   borderRadius: 5,
+                  border: "none",
+                  cursor: "pointer",
                 }}
               >
                 <FaCopy /> Copier
@@ -255,32 +281,39 @@ export default function Home() {
       )}
 
       <div style={{ marginTop: 20, display: "flex", gap: 10 }}>
-        <button
-          onClick={addRow}
-          style={{
-            padding: "10px 15px",
-            backgroundColor: "#FF9800",
-            color: "white",
-            borderRadius: 6,
-            display: "flex",
-            alignItems: "center",
-            gap: 5,
-          }}
-        >
-          <FaPlus /> Ajouter une ligne
-        </button>
+        {mode === "table" && (
+          <button
+            onClick={addRow}
+            style={{
+              padding: "10px 15px",
+              backgroundColor: "#FF9800",
+              color: "white",
+              borderRadius: 6,
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            <FaPlus /> Ajouter une ligne
+          </button>
+        )}
 
         <button
           onClick={handlePredict}
+          disabled={loading}
           style={{
             padding: "12px 25px",
-            backgroundColor: "#2E7D32",
+            backgroundColor: loading ? "#ccc" : "#2E7D32",
             color: "white",
             fontWeight: "bold",
             borderRadius: 6,
+            border: "none",
+            cursor: loading ? "default" : "pointer",
           }}
         >
-          Prédire
+          {loading ? "⏳ Prédiction..." : "Prédire"}
         </button>
       </div>
 
